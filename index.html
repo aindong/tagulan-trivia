@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tag-ulan Trivia · Yoyo Holdings</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@400;600;800&display=swap');
+
+:root{
+  --ink:#eaf6ff;
+  --amber:#ffc24b;
+  --amber-deep:#ff9e2c;
+  --teal:#1bd0c4;
+  --bg0:#060d1a;
+  --bg1:#0c1c33;
+  --bg2:#123048;
+  --display:'Archivo Black','Arial Black',Impact,sans-serif;
+  --body:'Poppins','Segoe UI',system-ui,sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--ink);font-family:var(--body)}
+body{cursor:default}
+
+/* ---------- deck ---------- */
+#deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  padding:5vh 6vw;text-align:center;opacity:0;transition:opacity .5s ease}
+.slide.active{display:flex;opacity:1}
+.slide.flat{flex-direction:column}
+
+/* gradient base behind everything */
+.bg-grad{position:absolute;inset:0;z-index:0;
+  background:radial-gradient(120% 90% at 50% 0%,var(--bg2) 0%,var(--bg1) 45%,var(--bg0) 100%)}
+.bg-img{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;
+  filter:saturate(1.05)}
+.bg-img::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(6,13,26,.55) 0%,rgba(6,13,26,.25) 40%,rgba(6,13,26,.82) 100%)}
+
+/* ---------- rain + lightning (global overlay) ---------- */
+#weather{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.drop{position:absolute;top:-12vh;width:1.4px;height:90px;
+  background:linear-gradient(transparent,rgba(180,220,255,.55));border-radius:2px;
+  animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(125vh)}}
+#flash{position:fixed;inset:0;z-index:6;background:#cfe8ff;opacity:0;pointer-events:none;mix-blend-mode:screen}
+#flash.zap{animation:zap .9s ease-out}
+@keyframes zap{0%{opacity:0}4%{opacity:.0}6%{opacity:.75}10%{opacity:.1}14%{opacity:.55}22%{opacity:0}100%{opacity:0}}
+
+/* ---------- chrome ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:8;display:flex;justify-content:space-between;
+  align-items:center;padding:18px 28px;font-weight:600;letter-spacing:.5px;
+  text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.topbar .round{display:flex;align-items:center;gap:10px;font-size:clamp(13px,1.5vw,18px);text-transform:uppercase}
+.topbar .round .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber)}
+.topbar .count{font-size:clamp(13px,1.5vw,18px);color:var(--amber)}
+.topbar.hide{opacity:0;pointer-events:none}
+.progress{position:fixed;bottom:0;left:0;height:5px;background:linear-gradient(90deg,var(--teal),var(--amber));
+  z-index:8;width:0;transition:width .4s ease;box-shadow:0 0 14px var(--amber)}
+.hint-keys{position:fixed;bottom:14px;right:20px;z-index:8;font-size:12px;color:rgba(234,246,255,.45)}
+
+/* ---------- cover / divider / win ---------- */
+.hero{position:relative;z-index:2;max-width:1100px}
+.kicker{font-weight:600;letter-spacing:6px;text-transform:uppercase;color:var(--teal);
+  font-size:clamp(12px,1.6vw,20px);margin-bottom:14px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+.title{font-family:var(--display);line-height:.95;font-size:clamp(48px,11vw,150px);
+  text-transform:uppercase;letter-spacing:-1px;
+  background:linear-gradient(180deg,#fff 0%,var(--amber) 95%);-webkit-background-clip:text;
+  background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(255,158,44,.45))}
+.subtitle{margin-top:18px;font-size:clamp(16px,2.4vw,30px);font-weight:600;color:var(--ink);
+  text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.tag{margin-top:26px;font-size:clamp(13px,1.6vw,19px);color:rgba(234,246,255,.8);font-weight:400}
+.pulse{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+.divider .rnum{font-family:var(--display);font-size:clamp(60px,16vw,210px);line-height:.8;
+  color:transparent;-webkit-text-stroke:2px rgba(255,194,75,.55)}
+.divider .rname{font-family:var(--display);font-size:clamp(40px,9vw,120px);text-transform:uppercase;
+  background:linear-gradient(180deg,#fff,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.divider .rdesc{margin-top:10px;font-size:clamp(15px,2vw,26px);color:rgba(234,246,255,.85)}
+
+/* ---------- how to play ---------- */
+.howto-title{font-family:var(--display);font-size:clamp(32px,6.5vw,82px);text-transform:uppercase;line-height:1;
+  background:linear-gradient(180deg,#fff,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:14px}
+.howto-lead{max-width:900px;margin:0 auto 24px;font-size:clamp(16px,2.1vw,26px);color:var(--ink);line-height:1.45;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.howto-lead b{color:var(--teal)}
+.howto-demo{display:flex;align-items:center;justify-content:center;gap:clamp(16px,4vw,54px);margin:6px 0 16px;flex-wrap:wrap}
+.demo-card{background:rgba(255,255,255,.05);border:2px dashed rgba(120,210,255,.45);border-radius:18px;padding:16px 34px}
+.demo-card .reb-stack{font-family:var(--display);font-size:clamp(26px,4.2vw,56px);color:#fff;line-height:1.04}
+.demo-arrow{font-size:clamp(26px,4vw,50px);color:var(--amber)}
+.demo-ans{font-family:var(--display);font-size:clamp(22px,4vw,52px);text-transform:uppercase;line-height:1;
+  background:linear-gradient(180deg,#fff,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.howto-note{font-size:clamp(14px,1.7vw,21px);color:rgba(234,246,255,.78);margin-bottom:26px}
+.howto-note b{color:var(--teal)}
+.howto-flowtitle{font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amber);
+  font-size:clamp(12px,1.5vw,17px);margin-bottom:12px}
+.howto-steps{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:1080px;margin:0 auto}
+.step{flex:1 1 210px;max-width:250px;background:rgba(0,0,0,.3);border:1px solid rgba(120,210,255,.22);
+  border-radius:14px;padding:13px 16px;text-align:left;display:flex;gap:12px;align-items:flex-start}
+.step .n{font-family:var(--display);color:var(--amber);font-size:clamp(20px,2.4vw,30px);line-height:.9}
+.step .t{font-size:clamp(13px,1.45vw,17px);color:var(--ink);line-height:1.32}
+.step .t b{color:var(--teal)}
+
+/* ---------- puzzle ---------- */
+.puzzle{position:relative;z-index:2;width:100%;max-width:1400px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3vh}
+.qlabel{font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--teal);
+  font-size:clamp(13px,1.6vw,20px)}
+.stage{display:flex;align-items:center;justify-content:center;min-height:34vh;width:100%;
+  font-family:var(--display);color:#fff;font-size:clamp(40px,8.5vw,120px);line-height:1;
+  letter-spacing:1px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.55))}
+.tease{font-size:clamp(15px,1.9vw,24px);color:rgba(234,246,255,.6);font-weight:400}
+
+/* answer reveal */
+.answer{position:relative;z-index:2;display:none;flex-direction:column;align-items:center;gap:14px;
+  width:100%;max-width:1200px}
+.answer.show{display:flex;animation:rise .55s cubic-bezier(.2,.9,.25,1)}
+@keyframes rise{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
+.answer .albl{font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--amber);font-size:clamp(13px,1.5vw,18px)}
+.answer .atext{font-family:var(--display);text-transform:uppercase;font-size:clamp(34px,7vw,96px);
+  line-height:1;background:linear-gradient(180deg,#fff,var(--amber));-webkit-background-clip:text;
+  background-clip:text;color:transparent;filter:drop-shadow(0 6px 26px rgba(255,158,44,.5))}
+.answer .ahow{max-width:780px;font-size:clamp(15px,1.9vw,23px);color:rgba(234,246,255,.85);font-weight:400}
+.answer .ahow b{color:var(--teal);font-weight:600}
+
+/* ---------- rebus building blocks ---------- */
+.reb-stack{display:inline-flex;flex-direction:column;align-items:center;gap:.06em;line-height:1}
+.reb-rule{width:100%;height:.09em;background:var(--amber);border:0;border-radius:4px;margin:.12em 0}
+.reb-huge{font-size:min(42vw,38rem);display:inline-block;white-space:nowrap;line-height:.8}
+.reb-tiny{font-size:.14em;display:inline-block}
+.reb-split-l{margin-right:1.1em}
+.reb-rev{display:inline-block;transform:scaleX(-1)}
+.reb-vert{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:-.06em;display:inline-block}
+.reb-frame{position:relative;width:min(60vw,560px);height:32vh;display:block;
+  border:3px dashed rgba(120,210,255,.45);border-radius:20px}
+.reb-top{position:absolute;top:.16em;left:50%;transform:translateX(-50%);font-size:.8em}
+.reb-cross{position:relative;display:inline-block;width:6em;height:3em}
+.reb-cross span{position:absolute;top:50%;left:50%}
+.reb-cross .h{transform:translate(-50%,-50%)}
+.reb-cross .v{transform:translate(-50%,-50%) rotate(90deg)}
+.reb-row{display:inline-flex;align-items:center;gap:.5em}
+.reb-accent{color:var(--amber)}
+.reb-gap{display:inline-block;width:2.4em}
+.reb-inside{color:var(--amber);font-size:.85em;padding:0 .12em}
+.reb-jumble span{display:inline-block;color:#fff}
+.reb-rainfield{position:relative;width:min(80vw,760px);height:36vh}
+.reb-rainfield span{position:absolute;font-size:.5em;color:#fff;opacity:.92}
+.reb-silver{width:1.7em;height:.13em;border-radius:8px;
+  background:linear-gradient(90deg,#8aa0b6,#fff,#c3d0dd,#fff,#8aa0b6);
+  box-shadow:0 0 22px rgba(220,235,255,.75)}
+
+/* ---------- confetti ---------- */
+#confetti{position:fixed;inset:0;z-index:7;pointer-events:none;overflow:hidden}
+.conf{position:absolute;top:-5vh;width:12px;height:18px;border-radius:2px;animation:conffall linear forwards}
+@keyframes conffall{to{transform:translateY(110vh) rotate(720deg);opacity:.9}}
+
+@media (max-width:680px){.stage{font-size:clamp(30px,11vw,60px)}}
+</style>
+</head>
+<body>
+
+<div id="deck"></div>
+
+<div id="weather"></div>
+<div id="flash"></div>
+<div id="confetti"></div>
+
+<div class="topbar hide" id="topbar">
+  <div class="round"><span class="dot"></span><span id="roundName"></span></div>
+  <div class="count" id="count"></div>
+</div>
+<div class="progress" id="progress"></div>
+<div class="hint-keys">→ / Space &nbsp;·&nbsp; ← back &nbsp;·&nbsp; F fullscreen</div>
+
+<script>
+/* ================= PUZZLE DATA ================= */
+const ROUNDS = [
+  {key:'drizzle', num:'I',   name:'Ambon · Drizzle', desc:'Warm-up rebus · easy does it', img:'images/divider-drizzle.png'},
+  {key:'rain',    num:'II',  name:'Ulan · Rain',     desc:'Steady now · a little trickier', img:'images/divider-rain.png'},
+  {key:'storm',   num:'III', name:'Bagyo · Storm',   desc:'Final downpour · hardest of all', img:'images/divider-storm.png'},
+];
+
+/* each: {r, answer, how, stage(HTML)} */
+const P = [
+  // ---- ROUND 1: DRIZZLE ----
+  {r:0, answer:'I Understand', how:'<b>I</b> sits <b>under</b> the word <b>STAND</b> → I-under-stand.',
+    stage:`<span class="reb-stack"><span>STAND</span><span>I</span></span>`},
+  {r:0, answer:'Big Deal', how:'The word <b>DEAL</b> is written really <b>big</b>.',
+    stage:`<span class="reb-huge">DEAL</span>`},
+  {r:0, answer:'Small Town', how:'The word <b>TOWN</b> is written very <b>small</b>.',
+    stage:`<span class="reb-tiny">TOWN</span>`},
+  {r:0, answer:'Mind Over Matter', how:'<b>MIND</b> is placed <b>over</b> (above the line) <b>MATTER</b>.',
+    stage:`<span class="reb-stack"><span>MIND</span><hr class="reb-rule"><span>MATTER</span></span>`},
+  {r:0, answer:'Split Second', how:'The word <b>SECOND</b> is <b>split</b> in two.',
+    stage:`<span><span class="reb-split-l">SEC</span>OND</span>`},
+  {r:0, answer:'Once Upon a Time', how:'<b>ONCE</b> rests <b>upon</b> <b>TIME</b>.',
+    stage:`<span class="reb-stack"><span>ONCE</span><span>TIME</span></span>`},
+  {r:0, answer:'Reading Between the Lines', how:'<b>READING</b> sits <b>between</b> two <b>lines</b>.',
+    stage:`<span class="reb-stack"><hr class="reb-rule"><span>READING</span><hr class="reb-rule"></span>`},
+
+  // ---- ROUND 2: RAIN ----
+  {r:1, answer:'Backward Glance', how:'<b>GLANCE</b> is written <b>backward</b>.',
+    stage:`<span class="reb-rev">GLANCE</span>`},
+  {r:1, answer:'Downtown', how:'<b>TOWN</b> is written going <b>down</b>.',
+    stage:`<span class="reb-vert">TOWN</span>`},
+  {r:1, answer:'Top Secret', how:'<b>SECRET</b> is pinned to the very <b>top</b>.',
+    stage:`<span class="reb-frame"><span class="reb-top">SECRET</span></span>`},
+  {r:1, answer:'Crossroads', how:'Two <b>ROADS</b> <b>cross</b> each other.',
+    stage:`<span class="reb-cross"><span class="h">ROAD</span><span class="v">ROAD</span></span>`},
+  {r:1, answer:'Just Between You and Me', how:'<b>JUST</b> sits <b>between</b> <b>YOU</b> and <b>ME</b>.',
+    stage:`<span class="reb-row"><span>YOU</span><span class="reb-accent">JUST</span><span>ME</span></span>`},
+  {r:1, answer:'One in a Million', how:'A <b>1</b> (one) is tucked <b>in</b> the word <b>MILLION</b>.',
+    stage:`<span>MILL<span class="reb-accent">1</span>ON</span>`},
+  {r:1, answer:'Side by Side', how:'Two <b>SIDE</b>s are placed <b>side by side</b>.',
+    stage:`<span class="reb-row"><span>SIDE</span><span>SIDE</span></span>`},
+
+  // ---- ROUND 3: STORM ----
+  {r:2, answer:'Under the Weather', how:'<b>THE</b> sits <b>under</b> <b>WEATHER</b>.',
+    stage:`<span class="reb-stack"><span>WEATHER</span><span>THE</span></span>`},
+  {r:2, answer:'Calm Before the Storm', how:'<b>CALM</b> comes <b>before</b> (left of) <b>STORM</b>.',
+    stage:`<span class="reb-row"><span>CALM</span><span class="reb-gap"></span><span>STORM</span></span>`},
+  {r:2, answer:'Raining Cats and Dogs', how:'<b>CAT</b>s and <b>DOG</b>s falling like <b>rain</b>.',
+    stage:`<span class="reb-rainfield" id="rainfield"></span>`},
+  {r:2, answer:'An Eye for an Eye', how:'<b>EYE</b> &nbsp;<b>4</b> (for)&nbsp; <b>EYE</b>.',
+    stage:`<span class="reb-row"><span>EYE</span><span class="reb-accent">4</span><span>EYE</span></span>`},
+  {r:2, answer:'All Mixed Up', how:'The letters of <b>MIXED</b> are all <b>mixed up</b>.',
+    stage:`<span class="reb-jumble"><span style="transform:rotate(-18deg)">X</span><span style="transform:rotate(12deg)">E</span><span style="transform:rotate(-7deg)">D</span><span style="transform:rotate(20deg)">M</span><span style="transform:rotate(-14deg)">I</span></span>`},
+  {r:2, answer:'Singing in the Rain', how:'<b>SINGING</b> is written <b>in</b> the middle of <b>RAIN</b>.',
+    stage:`<span class="reb-row" style="gap:.12em"><span>RA</span><span class="reb-inside">SINGING</span><span>IN</span></span>`},
+  {r:2, answer:'Every Cloud Has a Silver Lining', how:'A <b>cloud</b> with a <b>silver lining</b> underneath it. Salamat sa paglalaro!', finale:true,
+    stage:`<span class="reb-stack" style="gap:.06em"><span>CLOUD</span><span class="reb-silver"></span></span>`},
+];
+
+/* ================= BUILD SLIDES ================= */
+const deck = document.getElementById('deck');
+const slides = []; // {el, type, r, pIndex}
+
+function coverSlide(){
+  const s=document.createElement('div'); s.className='slide flat';
+  s.innerHTML=`<div class="bg-img" style="background-image:url('images/cover.png')"></div>
+    <div class="hero">
+      <div class="kicker">Yoyo Holdings · Philippines</div>
+      <div class="title">Tag-ulan<br>Trivia</div>
+      <div class="subtitle">A Rainy-Season Rebus Game</div>
+      <div class="tag pulse">Press → or Space to begin · F for fullscreen</div>
+    </div>`;
+  return {el:s, type:'cover'};
+}
+function howtoSlide(){
+  const s=document.createElement('div'); s.className='slide flat';
+  s.innerHTML=`<div class="bg-grad"></div>
+    <div class="hero" style="max-width:1150px">
+      <div class="kicker">How to Play</div>
+      <div class="howto-title">It's a Rebus!</div>
+      <p class="howto-lead">Each slide hides a <b>word or phrase</b> in <b>how the text is shown</b> — watch the <b>position, size, direction &amp; repetition</b> of the letters.</p>
+      <div class="howto-demo">
+        <div class="demo-card"><span class="reb-stack"><span>HEAD</span><span>HEELS</span></span></div>
+        <div class="demo-arrow">→</div>
+        <div class="demo-ans">Head Over Heels</div>
+      </div>
+      <p class="howto-note">See it? <b>HEAD</b> is sitting <b>over</b> <b>HEELS</b> → <b>head over heels</b>! &nbsp;·&nbsp; ☔ 3 rounds, getting harder.</p>
+      <div class="howto-flowtitle">How a round works · 6 teams</div>
+      <div class="howto-steps">
+        <div class="step"><span class="n">1</span><span class="t">🍾 <b>Flip the bottle!</b> First team to land it wins the chance to answer.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">⏱️ That team has <b>15 seconds</b> to crack the rebus.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">🔁 Miss it or time runs out? Everyone else <b>flips again to steal</b>.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">🏆 A correct answer <b>scores the point</b>. On to the next!</span></div>
+      </div>
+    </div>`;
+  return {el:s, type:'howto'};
+}
+function dividerSlide(r){
+  const R=ROUNDS[r];
+  const s=document.createElement('div'); s.className='slide flat';
+  s.innerHTML=`<div class="bg-img" style="background-image:url('${R.img}')"></div>
+    <div class="hero divider">
+      <div class="kicker">Round ${R.num}</div>
+      <div class="rname">${R.name.split('·')[0].trim()}</div>
+      <div class="rdesc">${R.desc}</div>
+    </div>`;
+  return {el:s, type:'divider', r};
+}
+function puzzleSlide(p, idx, numInRound, totalInRound){
+  const s=document.createElement('div'); s.className='slide flat';
+  s.innerHTML=`<div class="bg-grad"></div>
+    <div class="puzzle">
+      <div class="qlabel">Rebus ${numInRound} of ${totalInRound}</div>
+      <div class="stage">${p.stage}</div>
+      <div class="tease">What word or phrase is this?</div>
+    </div>
+    <div class="answer">
+      <div class="albl">Answer</div>
+      <div class="atext">${p.answer}</div>
+      <div class="ahow">${p.how}</div>
+    </div>`;
+  return {el:s, type:'puzzle', p, idx};
+}
+function winSlide(){
+  const s=document.createElement('div'); s.className='slide flat';
+  s.innerHTML=`<div class="bg-img" style="background-image:url('images/win.png')"></div>
+    <div class="hero">
+      <div class="kicker">That's a wrap</div>
+      <div class="title">Salamat!</div>
+      <div class="subtitle">Thanks for playing, Yoyo PH ☔</div>
+      <div class="tag">Stay dry — and save for a rainy day.</div>
+    </div>`;
+  return {el:s, type:'win'};
+}
+
+// assemble
+slides.push(coverSlide());
+slides.push(howtoSlide());
+ROUNDS.forEach((R,ri)=>{
+  slides.push(dividerSlide(ri));
+  const inRound = P.filter(p=>p.r===ri);
+  inRound.forEach((p,k)=> slides.push(puzzleSlide(p, P.indexOf(p), k+1, inRound.length)));
+});
+slides.push(winSlide());
+slides.forEach(s=>deck.appendChild(s.el));
+
+/* populate the cats-and-dogs rainfield once it's in the DOM */
+(function(){
+  const field=slides.find(s=>s.type==='puzzle' && s.p.answer==='Raining Cats and Dogs').el.querySelector('#rainfield');
+  const words=['CAT','DOG','CAT','DOG','CAT','DOG','CAT','DOG'];
+  words.forEach((w,i)=>{
+    const col=Math.floor(i/2);              // 4 columns
+    const sp=document.createElement('span'); sp.textContent=w;
+    sp.style.left=(7+col*22)+'%';
+    sp.style.top=((i%2?50:14)+col*6)+'%';   // CATs up / DOGs down, drifting downward
+    sp.style.transform='rotate(20deg)';     // uniform slant like falling rain
+    sp.style.opacity=.85;
+    field.appendChild(sp);
+  });
+})();
+
+/* ================= NAVIGATION ================= */
+let cur=0, revealed=false;
+const topbar=document.getElementById('topbar');
+const roundName=document.getElementById('roundName');
+const countEl=document.getElementById('count');
+const progress=document.getElementById('progress');
+
+const totalPuzzles = P.length;
+function puzzleNumber(idx){ return idx+1; }
+
+function render(){
+  slides.forEach((s,i)=>s.el.classList.toggle('active', i===cur));
+  const s=slides[cur];
+  // reset reveal UI
+  const ans=s.el.querySelector('.answer');
+  if(ans){ ans.classList.toggle('show', revealed); }
+  // topbar
+  if(s.type==='puzzle'){
+    topbar.classList.remove('hide');
+    roundName.textContent=ROUNDS[s.p.r].name;
+    countEl.textContent='Puzzle '+puzzleNumber(s.idx)+' / '+totalPuzzles;
+  }else{
+    topbar.classList.add('hide');
+  }
+  // progress bar across whole deck
+  progress.style.width=((cur)/(slides.length-1)*100)+'%';
+}
+
+function reveal(){
+  revealed=true;
+  const s=slides[cur];
+  const ans=s.el.querySelector('.answer');
+  if(ans) ans.classList.add('show');
+  burst(slides[cur].p && slides[cur].p.finale ? 120 : 36);
+}
+
+function step(dir){
+  const s=slides[cur];
+  if(dir>0){
+    if(s.type==='puzzle' && !revealed){ reveal(); return; }
+    if(cur<slides.length-1){ cur++; revealed=false; render(); afterEnter(); }
+  }else{
+    if(s.type==='puzzle' && revealed){ revealed=false; const a=s.el.querySelector('.answer'); if(a)a.classList.remove('show'); return; }
+    if(cur>0){ cur--; revealed=false; render(); afterEnter(); }
+  }
+}
+function afterEnter(){
+  const s=slides[cur];
+  if(s.type==='divider'||s.type==='cover'||s.type==='win') zap();
+  if(s.type==='win') burst(160);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();step(1);}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();step(-1);}
+  else if(e.key.toLowerCase()==='r'){revealed?(()=>{revealed=false;render();})():reveal();}
+  else if(e.key.toLowerCase()==='f'){toggleFs();}
+  else if(e.key==='Home'){cur=0;revealed=false;render();}
+});
+document.addEventListener('click',e=>{ step(1); });
+
+function toggleFs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+/* ================= RAIN ================= */
+(function rain(){
+  const w=document.getElementById('weather');
+  const N=70;
+  for(let i=0;i<N;i++){
+    const d=document.createElement('div'); d.className='drop';
+    d.style.left=Math.random()*100+'vw';
+    const dur=0.5+Math.random()*0.7;
+    d.style.animationDuration=dur+'s';
+    d.style.animationDelay=(-Math.random()*dur)+'s';
+    d.style.height=(60+Math.random()*70)+'px';
+    d.style.opacity=(.25+Math.random()*.5);
+    w.appendChild(d);
+  }
+})();
+
+/* ================= LIGHTNING ================= */
+const flash=document.getElementById('flash');
+function zap(){ flash.classList.remove('zap'); void flash.offsetWidth; flash.classList.add('zap'); }
+setInterval(()=>{ if(Math.random()<0.5) zap(); }, 9000);
+
+/* ================= CONFETTI ================= */
+const confLayer=document.getElementById('confetti');
+const COLORS=['#ffc24b','#1bd0c4','#ff5a7a','#eaf6ff','#ff9e2c'];
+function burst(n){
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='conf';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=COLORS[i%COLORS.length];
+    const dur=1.6+Math.random()*1.6;
+    c.style.animationDuration=dur+'s';
+    c.style.transform='rotate('+Math.random()*360+'deg)';
+    c.style.width=(7+Math.random()*8)+'px';
+    c.style.height=(10+Math.random()*12)+'px';
+    confLayer.appendChild(c);
+    setTimeout(()=>c.remove(), dur*1000+200);
+  }
+}
+
+render();
+</script>
+</body>
+</html>
