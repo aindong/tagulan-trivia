@@ -58,7 +58,7 @@ Reveal when ready. The bottom bar shows progress; top-right shows the puzzle num
 18. AN EYE FOR AN EYE — EYE "4" EYE
 19. ALL MIXED UP — letters of MIXED scrambled
 20. SINGING IN THE RAIN — SINGING inside RAIN
-21. **EVERY CLOUD HAS A SILVER LINING** — a cloud with a silver lining under it (the finale 🎉)
+21. **EYE OF THE STORM** — EYE tucked inside STORM (the finale 🎉)
 
 ## Want changes?
 - Edit puzzles in the `P = [...]` array inside `index.html` (each has `answer`, `how`, and the `stage` markup).
