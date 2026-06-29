@@ -146,9 +146,9 @@ body{cursor:default}
 .reb-jumble span{display:inline-block;color:#fff}
 .reb-rainfield{position:relative;width:min(80vw,760px);height:36vh}
 .reb-rainfield span{position:absolute;font-size:.5em;color:#fff;opacity:.92}
-.reb-silver{width:1.7em;height:.13em;border-radius:8px;
-  background:linear-gradient(90deg,#8aa0b6,#fff,#c3d0dd,#fff,#8aa0b6);
-  box-shadow:0 0 22px rgba(220,235,255,.75)}
+.reb-silvertext{background:linear-gradient(180deg,#f6f9fc 0%,#aab9c8 42%,#e6edf3 52%,#8595a6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 8px rgba(190,210,230,.45))}
 
 /* ---------- confetti ---------- */
 #confetti{position:fixed;inset:0;z-index:7;pointer-events:none;overflow:hidden}
@@ -228,8 +228,8 @@ const P = [
     stage:`<span class="reb-jumble"><span style="transform:rotate(-18deg)">X</span><span style="transform:rotate(12deg)">E</span><span style="transform:rotate(-7deg)">D</span><span style="transform:rotate(20deg)">M</span><span style="transform:rotate(-14deg)">I</span></span>`},
   {r:2, answer:'Singing in the Rain', how:'<b>SINGING</b> is written <b>in</b> the middle of <b>RAIN</b>.',
     stage:`<span class="reb-row" style="gap:.12em"><span>RA</span><span class="reb-inside">SINGING</span><span>IN</span></span>`},
-  {r:2, answer:'Every Cloud Has a Silver Lining', how:'A <b>cloud</b> with a <b>silver lining</b> underneath it. Salamat sa paglalaro!', finale:true,
-    stage:`<span class="reb-stack" style="gap:.06em"><span>CLOUD</span><span class="reb-silver"></span></span>`},
+  {r:2, answer:'Every Cloud Has a Silver Lining', how:'A <b>CLOUD</b> above a <b>silver</b>-coloured <b>LINING</b> → every cloud has a silver lining. Salamat sa paglalaro!', finale:true,
+    stage:`<span class="reb-stack" style="gap:.02em"><span>CLOUD</span><span class="reb-silvertext">LINING</span></span>`},
 ];
 
 /* ================= BUILD SLIDES ================= */
